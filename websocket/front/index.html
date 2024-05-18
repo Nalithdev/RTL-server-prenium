@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+<body>
+<div id="winner"></div>
+<div>
+    <p>Room</p>
+    <input type="text" name="" id="room">
+    <div>
+        <p>Créer votre joueur</p>
+    <input type="text" id="player">
+    <button id="join" onclick="joinGame()">Join Game</button>
+    </div>
+    <div>
+        <p>Coordonnées</p>
+        <input type="text" id="coord">
+        <button onclick="sendCoor()">Send Coord</button>
+    </div>
+    <div></div>
+<section class="game">
+    <p id="turn"></p>
+    <div id="l0" class="line">
+        <div id="l0c0" class="colone"></div>
+        <div id="l0c1" class="colone"></div>
+        <div id="l0c2" class="colone"></div>
+    </div>
+    <div id="l1" class="line">
+        <div id="l1c0" class="colone"></div>
+        <div id="l1c1" class="colone"></div>
+        <div id="l1c2" class="colone"></div>
+    </div>
+    <div id="l2" class="line">
+        <div id="l2c0" class="colone"></div>
+        <div id="l2c1" class="colone"></div>
+        <div id="l2c2" class="colone" ></div>
+    </div>
+</section>
+
+</div>
+
+<div class="historique">
+<h2>Historique</h2>
+    <div class="log"></div>
+
+</div>
+</body>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
+<script>
+    localStorage.removeItem('player');
+    let i = 0;
+    let room = '';
+    let socketid = '';
+    const text = document.querySelector('#room');
+    const socket = io('https://rlt-server.onrender.com/');
+    socket.on('connect', () => {
+        console.log('Connected');
+    });
+    socket.on('message', (data) => {
+        document.querySelector('.log').innerHTML += `<p>${data}</p>`;
+    });
+    socket.on('disconnect', () => {
+        console.log('Disconnected');
+    });
+    let sendCoor =() => {
+        let coordonnees = document.querySelector('#coord').value;
+        let array= coordonnees.split('');
+        console.log(array);
+        x = parseInt(array[0]);
+        y = parseInt(array[1]);
+        console.log(x,y);
+        console.log(localStorage.getItem('player'));
+        socket.emit('coord', {"room":text.value, "coord":[x,y], "player":localStorage.getItem('player')});
+
+    };
+    let joinGame = () => {
+        socket.emit('JoinGame', {"room":text.value, "player":document.querySelector('#player').value});
+        localStorage.setItem('player', document.querySelector('#player').value);
+    };
+    socket.on('play', (data) => {
+        let player = data.player;
+        let coord = data.coord;
+        let x = coord[0];
+        let y = coord[1];
+        let id = `l${x}c${y}`;
+        if (player === localStorage.getItem('player')){
+            document.getElementById(id).innerHTML = `<div class="circle"></div>`
+                ;
+        }
+        else {
+            document.getElementById(id).innerHTML = `<div class="cross-canva"><img src="src/Cross.svg"></div>`
+                ;
+        }
+
+    });
+    socket.on('turn', (data) => {
+        document.getElementById('turn').innerText = data;
+        document.getElementById('log').innerHTML += `<p>${data}</p>`;
+    });
+    socket.on('winner', (data) => {
+        document.getElementById('winner').classList.add('winner');
+        if (data === localStorage.getItem('player')){
+            document.getElementById('winner').innerHTML = '<div class="end_game" ><p > You win</p>' +
+                '<br> <button onclick="restart()">Rejouer</button></div>';
+    }
+        else {
+            document.getElementById('winner').innerHTML = '<div class="end_game" ><p > You lose</p>' +
+                '<br> <button onclick="restart()">Rejouer</button></div>';
+        }
+    });
+    function restart() {
+        socket.emit('restart', text.value);
+    }
+    socket.on('restart', (data) => {
+        console.log('restart');
+        document.getElementById('winner').classList.remove('winner');
+        document.getElementById('winner').innerHTML = '';
+        document.getElementById('turn').innerText = '';
+        document.getElementById('l0c0').innerText = '';
+        document.getElementById('l0c1').innerText = '';
+        document.getElementById('l0c2').innerText = '';
+        document.getElementById('l1c0').innerText = '';
+        document.getElementById('l1c1').innerText = '';
+        document.getElementById('l1c2').innerText = '';
+        document.getElementById('l2c0').innerText = '';
+        document.getElementById('l2c1').innerText = '';
+        document.getElementById('l2c2').innerText = '';
+        document.getElementById('log').innerHTML = 'Restart';
+
+    });
+
+    socket.on('start', (data) => {
+        console.log('start');
+        document.getElementById('join').innerText = '';
+    }  );
+
+
+    text.addEventListener('change', (e) => {
+        socket.emit('leave', room);
+        socket.emit('join', e.target.value);
+        document.getElementById('join').innerText = 'Join Game';
+        room = e.target.value;
+    });
+
+    socket.on('new-game', (data) => {
+        document.getElementById('join').innerText = 'Join Game';
+    });
+    socket.on('full', (data) => {
+        document.getElementById('log').innerHTML += `<p>${data}</p>`;
+    });
+    socket.on('start', (data) => {
+        document.getElementById('log').innerHTML += `<p>${data}</p>`;
+    });
+
+</script>
+</html>
