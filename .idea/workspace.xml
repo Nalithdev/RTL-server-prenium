@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a30a1f69-bda7-4203-80eb-37d6d7e360c2" name="Changes" comment="" />
+    <list default="true" id="a30a1f69-bda7-4203-80eb-37d6d7e360c2" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/websocket/front/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/websocket/front/index.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -62,7 +64,7 @@
       <option name="presentableId" value="Default" />
       <updated>1715758031407</updated>
       <workItem from="1715758032454" duration="14683000" />
-      <workItem from="1715932324372" duration="16886000" />
+      <workItem from="1715932324372" duration="17486000" />
     </task>
     <servers />
   </component>
